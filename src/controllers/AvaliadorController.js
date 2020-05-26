@@ -41,6 +41,7 @@ module.exports = {
 
         const curso = await Curso.findByPk(curso_id);
 
+        
         if(!curso){
             return res.status(400).json({error:'Curso não encontrado'});
         }
