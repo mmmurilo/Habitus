@@ -14,8 +14,8 @@ class Usuario extends Model{
     }
 
     static associate(models){
-        this.hasMany(models.Avaliado, {foreignKey: 'usuario_id', as:'cursoAvaliados'});
         this.hasMany(models.Avaliador, {foreignKey: 'usuario_id', as:'cursoAvaliadores'});
+        this.hasMany(models.Avaliado, {foreignKey: 'usuario_id', as:'cursoAvaliados'});
         this.belongsToMany(models.Curso, {foreignKey: 'usuario_id', through: 'coordenadores',
          as:'cursoCoordenadores'});
     }

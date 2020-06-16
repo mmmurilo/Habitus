@@ -10,7 +10,7 @@ class Fato extends Model{
     }
 
     static associate(models){
-        this.belongsToMany(models.FatoObservado, {foreignKey: 'fato_id', through: 'fatosObservados',as: 'fato'});
+        this.hasMany(models.FatoObservado, {foreignKey: 'fato_id',as: 'fato'});
     }
 }
 

@@ -6,18 +6,109 @@ const Fato = require('../models/Fato');
 const Atividade = require('../models/Atividade');
 const Providencia = require('../models/Providencia');
 const FatoObservado = require('../models/FatoObservado');
+const Usuario = require('../models/Usuario');
 
 module.exports = {
     async index(req,res){
-        const conteudos = await Conteudo.findAll();
+        const {avaliador_id} = req.params;
 
-        return res.json(conteudos);
+        const fatoObservado = await FatoObservado.findAll({
+            where: {avaliador_id},
+            attributes: ['data_fato','tipo_fato'],
+            include: [
+                {model: Conteudo,
+                as: 'conteudoFato',
+                attributes: ['nome_conteudo']},
+                {model: Pauta,
+                as: 'pautaFato',
+                attributes: ['desc_pauta']},
+                {model: Fato,
+                as: 'fatoFato',
+                attributes: ['desc_fato']},
+                {model: Atividade,
+                as: 'atividadeFato',
+                attributes: ['desc_atividade']},
+                {model: Providencia,
+                as: 'providenciaFato',
+                attributes: ['desc_providencia']},                
+                {model: Avaliado,
+                as: 'avaliados',
+                through: {attributes: []},
+                include: ['usuarioAvaliado']
+                }
+            ]
+        })
+
+        return res.json(fatoObservado);
     },
     
     async store(req,res){
         const {avaliador_id} = req.params;
-        const {data_fato, tipo_fato,conteudo_nome, pauta_nome,fato_desc,
-        atividade_desc,providencia_desc} = req.body;
+        const {data_fato, tipo_fato,nome_conteudo, desc_pauta,desc_fato,
+        desc_atividade,desc_providencia,listaAvaliados} = req.body;
+
+        const avaliador = await Avaliador.findByPk(avaliador_id);
+
+        if(!avaliador){
+            return res.status(400).json({error:'Avaliador não encontrado'});
+        }
+    
+        const conteudo = await Conteudo.findOne({
+            where: { nome_conteudo }
+        });
+    
+        const pauta = await Pauta.findOne({
+            where: { desc_pauta }
+        });
+
+        const buscaFato = await Fato.findOrCreate({
+            where: { desc_fato }
+        });
+
+        const fato = await Fato.findOne({where: {desc_fato}});
+
+        const buscaAtividade = await Atividade.findOrCreate({
+            where: { desc_atividade }
+        });
+
+        const atividade = await Atividade.findOne({where: {desc_atividade}});
+        
+        const buscaProvidencia = await Providencia.findOrCreate({
+            where: { desc_providencia }
+        });
+        
+        const providencia = await Providencia.findOne({where: {desc_providencia}});
+
+        const fatoObservado = await FatoObservado.create({
+            avaliador_id: avaliador_id,
+            data_fato : data_fato,
+            tipo_fato : tipo_fato,
+            conteudo_id : conteudo.id,
+            pauta_id: pauta.id,
+            fato_id: fato.id,
+            atividade_id: atividade.id,
+            providencia_id: providencia.id,
+        });
+                
+        listaAvaliados.forEach(addAvaliado);
+        
+        async function addAvaliado(nome_avaliado){
+            const usuario = await Usuario.findOne({
+                where: {nome_usuario : nome_avaliado}
+            })
+            const avaliado = await Avaliado.findOne({
+                where: {usuario_id : usuario.id}
+            })
+            console.log(avaliado.id)
+            fatoObservado.addAvaliado(avaliado);
+        };      
+
+        return res.json(fatoObservado);
+    },
+
+    async delete(req,res){
+        const {avaliador_id} = req.params;
+        const {fatoObservado_id,listaAvaliados} = req.body;
 
         const avaliador = await Avaliador.findByPk(avaliador_id);
 
@@ -25,51 +116,24 @@ module.exports = {
             return res.status(400).json({error:'Perfil não encontrado'});
         }
 
-        const fatoObservado = await FatoObservado.create({data_fato,tipo_fato});
-    
-        const [ conteudo ] = await Conteudo.findOne({
-            where: { conteudo_nome }
-        });
-        await avaliador.addConteudo(conteudo);
-    
-        const [ pauta ] = await Pauta.findOne({
-            where: { pauta_nome }
-        });
-        await avaliador.addPauta(pauta);
+        const fatoObservado = await fatoObservado.findByPk(fatoObservado_id);
 
-        const [ fato ] = await Fato.findOrCreate({
-            where: { fato_desc }
-        });
-        await avaliador.addFato(fato);
-
-        const [ atividade ] = await Atividade.findOrCreate({
-            where: { atividade_desc }
-        });
-        await avaliador.addAtividade(atividade);
-        
-        const [ providencia ] = await Providencia.findOrCreate({
-            where: { providencia_desc }
-        });
-        await avaliador.addProvidencia(providencia);
-
-        return res.json(fatoObservado);
-    },
-
-    async delete(req,res){
-        const {perfil_id} = req.params;
-        const {nome_conteudo} = req.body;
-
-        const perfil = await Perfil.findByPk(perfil_id);
-
-        if(!perfil){
-            return res.status(400).json({error:'Perfil não encontrado'});
+        if(avaliador_id != fatoObservado.avaliador_id){
+            return res.status(400).json({error:"Avaliador não autorizado"});
         }
 
-        const conteudo = await Conteudo.findOne({
-            where: { nome_conteudo }
-        });
+        listaAvaliados.forEach(delAvaliado);
 
-        await perfil.removeConteudo(conteudo);
+        async function delAvaliado(nome_avaliado){
+            const usuario = await Usuario.findOne({
+                where: {nome_usuario : nome_avaliado}
+            })
+            const avaliado = await Avaliado.findOne({
+                where: {usuario_id : usuario.id}
+            })
+            console.log(avaliado.id)
+            fatoObservado.removeAvaliado(avaliado);
+        }; 
     
         return res.json();
     }

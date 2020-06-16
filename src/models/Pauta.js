@@ -11,6 +11,7 @@ class Pauta extends Model{
 
     static associate(models){
         this.belongsTo(models.Conteudo, {foreignKey: 'conteudo_id', as: 'conteudo'});
+        this.hasMany(models.FatoObservado, {foreignKey: 'pauta_id',as: 'pautaFato'});
     }
 }
 

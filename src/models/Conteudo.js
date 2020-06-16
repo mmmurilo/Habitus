@@ -13,6 +13,7 @@ class Conteudo extends Model{
         this.hasMany(models.Pauta, {foreignKey: 'conteudo_id', as: 'pautas'});
         this.belongsToMany(models.Perfil, {foreignKey: 'conteudo_id', through: 'conteudo_Perfil',
          as:'perfils'});
+        this.hasMany(models.FatoObservado, {foreignKey: 'conteudo_id', as: 'conteudoFato'});
     }
 }
 

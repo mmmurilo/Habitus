@@ -6,18 +6,20 @@ class FatoObservado extends Model{
             data_fato: DataTypes.DATE,
             tipo_fato: DataTypes.ENUM(['Positivo','Negativo','Neutro']),
         }, {
-            sequelize
+            sequelize,
+            tableName: "fatosObservados"
         })
     }
 
     static associate(models){
-        this.hasOne(models.Avaliador, {foreignKey: 'avaliador_id', as:'avaliadorFato'});
-        this.hasOne(models.Conteudo, {foreignKey: 'conteudo_id', as:'conteudoFato'});
-        this.hasOne(models.Pauta, {foreignKey: 'pauta_id', as:'pautaFato'});
-        this.hasOne(models.Fato, {foreignKey: 'fato_id', as:'fatoFato'});
-        this.hasOne(models.Atividade, {foreignKey: 'atividade_id', as:'atividadeFato'});
-        this.hasOne(models.Providencia, {foreignKey: 'providencia_id', as:'providenciaFato'});
-        this.belongsToMany(models.Avaliado, {foreignKey: 'fatoObservado_id', through: 'avaliadosFatos',
+       
+        this.belongsTo(models.Avaliador, {foreignKey: 'avaliador_id', as:'avaliadorFato'});
+        this.belongsTo(models.Conteudo, {foreignKey: 'conteudo_id', as:'conteudoFato'});
+        this.belongsTo(models.Pauta, {foreignKey: 'pauta_id', as:'pautaFato'});
+        this.belongsTo(models.Fato, {foreignKey: 'fato_id', as:'fatoFato'});
+        this.belongsTo(models.Atividade, {foreignKey: 'atividade_id', as:'atividadeFato'});
+        this.belongsTo(models.Providencia, {foreignKey: 'providencia_id', as:'providenciaFato'});
+        this.belongsToMany(models.Avaliado, {foreignKey: 'fato_observado_id', through: 'avaliadosFatos',
          as:'avaliados'});
     }
 }

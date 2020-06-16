@@ -13,8 +13,8 @@ class Curso extends Model{
 
     static associate(models){
         this.belongsTo(models.Perfil, {foreignKey: 'perfil_id', as: 'perfil'});
-        this.hasMany(models.Avaliado, {foreignKey: 'curso_id', as:'avaliado'});
         this.hasMany(models.Avaliador, {foreignKey: 'curso_id', as:'avaliador'});
+        this.hasMany(models.Avaliado, {foreignKey: 'curso_id', as:'avaliado'});
         this.belongsToMany(models.Usuario, {foreignKey: 'curso_id', through: 'coordenadores',
          as:'coordenador'});
     }

@@ -14,8 +14,12 @@ const AvaliadorController = require('./controllers/AvaliadorController');
 const IdAvaliadorController = require('./controllers/IdAvaliadorController');
 const CoordenadorController = require('./controllers/CoordenadorController');
 const FatoObservadoAvaliadorController = require('./controllers/FatoObservadoAvaliadorController');
+const FatoObservadoAvaliadoController = require('./controllers/FatoObservadoAvaliadoController');
+const LoginController = require('./controllers/LoginController');
 
 const routes = express.Router();
+
+routes.get('/login',LoginController.index); //login usuario
 
 routes.get('/usuarios',UsuarioController.index); //busca todos usuarios
 routes.post('/usuarios',UsuarioController.store); //cria usuario
@@ -39,20 +43,24 @@ routes.get('/cursos',CursoController.index); //busca todos os cursos
 routes.get('/perfil/:perfil_id/cursos',CursoPerfilController.index); //busca o curso com determinado perfil
 routes.post('/perfil/:perfil_id/cursos',CursoController.store); //cria curso com perfil
 
+
 routes.get('/curso/:curso_id/avaliado',AvaliadoController.index); //busca todos avaliados no curso
 routes.post('/curso/:curso_id/avaliado',AvaliadoController.store); //cria avaliado no curso (e no banco, se nao existir) 
 routes.delete('/curso/:curso_id/avaliado',AvaliadoController.delete); //deleta avaliado do curso (nao do banco)
-routes.get('/curso/:curso_id/:usuario_id',IdAvaliadoController.index); //id do avaliado pelo id usuario e curso
+routes.get('/curso/avaliado/:curso_id/:usuario_id',IdAvaliadoController.index); //id do avaliado pelo id usuario e curso
 
-routes.get('/curso/:curso_id/avaliador',AvaliadorController.index); //busca todos avaliadores no curso
+//verificar porque /curso/:curso_id/avaliador não funciona (saturação?)
+routes.get('/:curso_id/avaliador',AvaliadorController.index); //busca todos avaliadores no curso
 routes.post('/curso/:curso_id/avaliador',AvaliadorController.store); //cria avaliador no curso (e no banco, se nao existir) 
 routes.delete('/curso/:curso_id/avaliador',AvaliadorController.delete); //deleta avaliador do curso (nao do banco)
-routes.get('/curso/:curso_id/:usuario_id',IdAvaliadorController.index); //id do avaliador pelo id usuario e curso
+routes.get('/curso/avaliador/:curso_id/:usuario_id',IdAvaliadorController.index); //id do avaliador pelo id usuario e curso
 
 routes.get('/curso/:curso_id/coordenador',CoordenadorController.index); //busca todos coordenadores no curso
 routes.post('/curso/:curso_id/coordenador',CoordenadorController.store); //cria coordenador no curso (e no banco, se nao existir) 
 routes.delete('/curso/:curso_id/coordenador',CoordenadorController.delete); //deleta coordenador do curso (nao do banco)
 
-routes.post('/curso/:avaliador_id/fo',FatoObservadoAvaliadorController.store);
+routes.post('/curso/:avaliador_id/avaliador/fo',FatoObservadoAvaliadorController.store); //cadastra fo no id avaliador
+routes.get('/curso/:avaliador_id/avaliador/fo',FatoObservadoAvaliadorController.index); //visualiza todos fo do avaliador
+routes.get('/curso/:avaliado_id/avaliado/fo',FatoObservadoAvaliadoController.index); //visualiza todos fo do avaliado
 
 module.exports = routes;

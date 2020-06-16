@@ -5,12 +5,13 @@ class Providencia extends Model{
         super.init({
             desc_providencia: DataTypes.STRING,
         }, {
-            sequelize
+            sequelize,
+            tableName: 'providencias'
         })
     }
 
     static associate(models){
-        this.belongsToMany(models.FatoObservado, {foreignKey: 'providencia_id', through: 'fatosObservados', as: 'providencia'});
+        this.hasMany(models.FatoObservado, {foreignKey: 'providencia_id', as: 'providencia'});
     }
 }
 
